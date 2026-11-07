@@ -260,6 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // 5. CONTADORES EN TIEMPO REAL (DUAL COUNTER)
   // ==========================================
+  // ==========================================
+  // 5. CONTADORES EN TIEMPO REAL (DETENIDOS AHORA)
+  // ==========================================
   const timerDays1 = document.getElementById('timer-days');
   const timerHours1 = document.getElementById('timer-hours');
   const timerMinutes1 = document.getElementById('timer-minutes');
@@ -272,7 +275,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function calculateTimeDiff(targetDateStr) {
     const targetDate = new Date(targetDateStr);
-    const now = new Date();
+    
+    // 🛑 CONGELADO EN ESTE INSTANTE:
+    const now = new Date('2026-11-07T13:45:49'); 
     const diff = Math.max(0, now - targetDate);
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -289,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateAllCounters() {
-    // 1. Primer contador: El Comienzo (26 de Septiembre de 2025)
+    // 1. Primer contador: El Comienzo
     if (timerDays1) {
       const t1 = calculateTimeDiff(CONFIG.fechaInicio);
       timerDays1.textContent = t1.days;
@@ -298,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
       timerSeconds1.textContent = t1.seconds;
     }
 
-    // 2. Segundo contador: Volver a Intentarlo (6 de Marzo de 2026 - 4:00 PM)
+    // 2. Segundo contador: Volver a Intentarlo
     if (timerDays2) {
       const t2 = calculateTimeDiff(CONFIG.fechaReintento);
       timerDays2.textContent = t2.days;
@@ -308,8 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Muestra el tiempo congelado y ya no se repite cada segundo:
   updateAllCounters();
-  setInterval(updateAllCounters, 1000);
+  // setInterval(updateAllCounters, 1000); // <-- DETENIDO;
 
   // ==========================================
   // 6. MICROINTERACCIÓN: POLAROIDS 3D FLIP CARDS
