@@ -13,6 +13,9 @@ const CONFIG = {
   // 2. SEGUNDO CONTADOR: Cuando le dije para volver a intentarlo (6 de Marzo de 2026 a las 4:00 PM)
   fechaReintento: '2026-03-06T16:00:00',
 
+  // 🛑 FECHA EXACTA DE DETENCIÓN (Congelado justo ahora)
+  fechaDetencion: '2026-11-07T13:49:50',
+
   // 3. PLAYLIST DE SPOTIFY (9 canciones oficiales seleccionadas)
   playlist: [
     {
@@ -159,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Fanfarria romántica para cuando dice que sí o sella la carta
   function playCelebrationFanfare() {
     if (!soundEnabled) return;
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // Do, Mi, Sol, Do alto
+    const notes = [523.25, 659.25, 783.99, 1046.50];
     notes.forEach((freq, idx) => {
       setTimeout(() => {
         playChime(freq, 'sine', 0.6);
@@ -204,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   document.addEventListener('click', (e) => {
-    // Ignorar si se hace clic en inputs o áreas de texto
     if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
       const symbols = ['♡', '✨', '🐾', '🌸', '💖'];
       const chosen = symbols[Math.floor(Math.random() * symbols.length)];
@@ -258,10 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 5. CONTADORES EN TIEMPO REAL (DUAL COUNTER)
-  // ==========================================
-  // ==========================================
-  // 5. CONTADORES EN TIEMPO REAL (DETENIDOS AHORA)
+  // 5. CONTADORES DETENIDOS (CONGELADOS EN ESTE INSTANTE)
   // ==========================================
   const timerDays1 = document.getElementById('timer-days');
   const timerHours1 = document.getElementById('timer-hours');
@@ -275,9 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function calculateTimeDiff(targetDateStr) {
     const targetDate = new Date(targetDateStr);
-    
-    // 🛑 CONGELADO EN ESTE INSTANTE:
-    const now = new Date('2026-11-07T13:45:49'); 
+    // Usamos la fecha fija de detención (no avanza más):
+    const now = new Date(CONFIG.fechaDetencion);
     const diff = Math.max(0, now - targetDate);
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -294,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateAllCounters() {
-    // 1. Primer contador: El Comienzo
+    // 1. Primer contador
     if (timerDays1) {
       const t1 = calculateTimeDiff(CONFIG.fechaInicio);
       timerDays1.textContent = t1.days;
@@ -303,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
       timerSeconds1.textContent = t1.seconds;
     }
 
-    // 2. Segundo contador: Volver a Intentarlo
+    // 2. Segundo contador
     if (timerDays2) {
       const t2 = calculateTimeDiff(CONFIG.fechaReintento);
       timerDays2.textContent = t2.days;
@@ -313,9 +311,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Muestra el tiempo congelado y ya no se repite cada segundo:
+  // Se calculan una sola vez y quedan fijos:
   updateAllCounters();
-  // setInterval(updateAllCounters, 1000); // <-- DETENIDO;
+  // setInterval(updateAllCounters, 1000); // <-- DETENIDO
 
   // ==========================================
   // 6. MICROINTERACCIÓN: POLAROIDS 3D FLIP CARDS
@@ -475,7 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ==========================================
   // 10. MINIJUEGO: BOTÓN "NO TOCAR" ⚠️
-  //     (Pantalla en negro durante 5 segundos)
   // ==========================================
   const btnNoTocar = document.getElementById('btn-no-tocar');
   const blackoutScreen = document.getElementById('blackout-screen');
@@ -524,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
           La voy a tener muy en cuenta para consentirte más y corregirlo. Cero rencores ♡
         `;
       }
-      textoQuejita.value = '';
+      if (textoQuejita) textoQuejita.value = '';
     });
   }
 
@@ -545,7 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnNo = document.getElementById('btn-no');
   const btnYes = document.getElementById('btn-yes');
   const proposalArena = document.getElementById('proposal-arena');
-  const proposalHint = document.getElementById('proposal-hint-text');
   const modalSuccess = document.getElementById('modal-proposal-success');
   const btnCloseProposalModal = document.getElementById('btn-close-proposal-modal');
 
@@ -560,452 +556,5 @@ document.addEventListener('DOMContentLoaded', () => {
     const phraseIndex = (noAttempts - 1) % CONFIG.frasesNo.length;
     btnNo.textContent = CONFIG.frasesNo[phraseIndex];
 
-    // Hacer crecer progresivamente el botón "Sí"
-    const scale = 1 + Math.min(noAttempts * 0.12, 1.6);
-    btnYes.style.transform = `scale(${scale})`;
-    btnYes.style.boxShadow = `0 0 ${16 + noAttempts * 5}px rgba(232, 93, 142, 0.7)`;
-
-    // Sonido sutil de esquiva
-    playChime(440 + noAttempts * 30, 'triangle', 0.2);
-
-    // Calcular posición segura dentro del contenedor sin salirse
-    const arenaRect = proposalArena.getBoundingClientRect();
-    const btnRect = btnNo.getBoundingClientRect();
-
-    const padding = 16;
-    const maxX = Math.max(0, arenaRect.width - btnRect.width - padding * 2);
-    const maxY = Math.max(0, arenaRect.height - btnRect.height - padding * 2);
-
-    const randomX = Math.floor(Math.random() * maxX) + padding;
-    const randomY = Math.floor(Math.random() * maxY) + padding;
-
-    btnNo.style.position = 'absolute';
-    btnNo.style.left = `${randomX}px`;
-    btnNo.style.top = `${randomY}px`;
-
-    // Actualizar pista divertida
-    if (proposalHint) {
-      if (noAttempts >= 6) {
-        proposalHint.innerHTML = "<span>¡Mariana, es evidente que el destino quiere que toques el 'Sí'! 😂💖</span>";
-      } else {
-        proposalHint.innerHTML = `<span>Intentos de escapar: ${noAttempts} / El botón "Sí" se hace irresistible...</span>`;
-      }
-    }
-  }
-
-  if (btnNo) {
-    // Evadir en mouseover (computadora) y touchstart (celular)
-    btnNo.addEventListener('mouseenter', moveNoButton);
-    btnNo.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      moveNoButton();
-    });
-    btnNo.addEventListener('click', (e) => {
-      e.preventDefault();
-      moveNoButton();
-    });
-  }
-
-  // Lanzador de Confetti con corazones usando Canvas Confetti
-  function launchConfettiCelebration() {
-    if (typeof confetti === 'function') {
-      const duration = 4 * 1000;
-      const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 70, zIndex: 99999 };
-
-      const interval = setInterval(() => {
-        const timeLeft = animationEnd - Date.now();
-        if (timeLeft <= 0) {
-          return clearInterval(interval);
-        }
-        const particleCount = 55 * (timeLeft / duration);
-
-        confetti(Object.assign({}, defaults, {
-          particleCount,
-          origin: { x: Math.random() * 0.4 + 0.1, y: Math.random() - 0.2 },
-          colors: ['#E85D8E', '#F7B6C8', '#FCE4EC', '#B83263', '#FFF8FA', '#7A2946']
-        }));
-        confetti(Object.assign({}, defaults, {
-          particleCount,
-          origin: { x: Math.random() * 0.4 + 0.5, y: Math.random() - 0.2 },
-          colors: ['#E85D8E', '#F7B6C8', '#FCE4EC', '#B83263', '#FFF8FA', '#7A2946']
-        }));
-      }, 250);
-    }
-  }
-
-  if (btnYes) {
-    btnYes.addEventListener('click', () => {
-      playCelebrationFanfare();
-      launchConfettiCelebration();
-
-      if (modalSuccess) {
-        modalSuccess.classList.remove('hidden');
-      }
-    });
-  }
-
-  if (btnCloseProposalModal && modalSuccess) {
-    btnCloseProposalModal.addEventListener('click', () => {
-      modalSuccess.classList.add('hidden');
-    });
-  }
-
-  // ==========================================
-  // 13. SELLO DE LA CARTA 💌
-  // ==========================================
-  const btnSeal = document.getElementById('btn-seal');
-  if (btnSeal) {
-    btnSeal.addEventListener('click', () => {
-      playCelebrationFanfare();
-      btnSeal.innerHTML = `
-        <span class="seal-icon">💖</span>
-        <span class="seal-text">¡Sellada con todo mi amor!</span>
-      `;
-      btnSeal.style.background = 'linear-gradient(135deg, #15803d, #166534)';
-
-      // Disparar confeti
-      launchConfettiCelebration();
-
-      // Lluvia de corazones desde el botón
-      for (let i = 0; i < 28; i++) {
-        setTimeout(() => {
-          const rect = btnSeal.getBoundingClientRect();
-          const startX = rect.left + rect.width / 2 + (Math.random() - 0.5) * 140;
-          const startY = rect.top + (Math.random() - 0.5) * 50;
-          createHeartParticle(startX, startY, i % 2 === 0 ? '❤️' : '♡');
-        }, i * 40);
-      }
-    });
-  }
-
-  // ==========================================
-  // 14. MINI-PLAYER FLOTANTE DE MÚSICA (SPOTIFY OFFICIAL IFRAME API)
-  // ==========================================
-  const miniPlayer = document.getElementById('mini-music-player');
-  const spotifyTrackCounter = document.getElementById('spotify-track-counter');
-  const btnPrevTrack = document.getElementById('btn-prev-track');
-  const btnPlayPauseSpotify = document.getElementById('btn-play-pause-spotify');
-  const btnNextTrack = document.getElementById('btn-next-track');
-  const btnPlaylistToggle = document.getElementById('btn-playlist-toggle');
-  const btnClosePlaylist = document.getElementById('btn-close-playlist');
-  const playlistMenu = document.getElementById('player-playlist-menu');
-  const drawerList = document.getElementById('spotify-drawer-list');
-  const btnToggleCollapse = document.getElementById('btn-toggle-collapse');
-  const btnOpenPlayer = document.getElementById('btn-open-player');
-  const spotifyAutoplayBanner = document.getElementById('spotify-autoplay-banner');
-  const btnContinueNext = document.getElementById('btn-continue-next');
-
-  const playlist = CONFIG.playlist || [];
-  let currentTrackIndex = 0;
-  let embedController = null;
-  let isPlaybackActive = false;
-  let trackFinishedHandled = false;
-  let autoplayPromptTimer = null;
-  let currentPlayingUri = '';
-
-  function escapeHTML(str) {
-    if (!str) return '';
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  // Renderizar la lista de las 9 canciones en el cajón desplegable
-  function renderPlaylistDrawer() {
-    if (!drawerList) return;
-    drawerList.innerHTML = '';
-    playlist.forEach((track, idx) => {
-      const item = document.createElement('div');
-      item.className = `spotify-drawer-item ${idx === currentTrackIndex ? 'active' : ''}`;
-      item.setAttribute('role', 'button');
-      item.setAttribute('tabindex', '0');
-      item.setAttribute('title', `Reproducir ${track.titulo} de ${track.artista}`);
-      item.innerHTML = `
-        <span class="spotify-item-num">${idx + 1}</span>
-        <div class="spotify-item-info">
-          <span class="spotify-item-title">${escapeHTML(track.titulo)}</span>
-          <span class="spotify-item-artist">${escapeHTML(track.artista)}</span>
-        </div>
-        ${idx === currentTrackIndex ? '<span class="spotify-item-indicator">▶</span>' : ''}
-      `;
-      item.addEventListener('click', () => {
-        hideAutoplayBanner();
-        loadSpotifyTrack(idx, true, false);
-        if (playlistMenu) playlistMenu.classList.add('hidden');
-      });
-      drawerList.appendChild(item);
-    });
-  }
-
-  // Actualizar indicadores visuales de pista
-  function updateTrackUI(index) {
-    if (spotifyTrackCounter) {
-      spotifyTrackCounter.textContent = `${index + 1} de ${playlist.length}`;
-    }
-    renderPlaylistDrawer();
-  }
-
-  // Actualizar estado del botón Play/Pause en la barra
-  function updatePlayPauseUI(isPlaying) {
-    isPlaybackActive = isPlaying;
-    if (btnPlayPauseSpotify) {
-      btnPlayPauseSpotify.innerHTML = isPlaying ? '⏸' : '▶';
-      btnPlayPauseSpotify.title = isPlaying ? 'Pausar música' : 'Reproducir música';
-      if (isPlaying) {
-        btnPlayPauseSpotify.classList.add('active-playing');
-      } else {
-        btnPlayPauseSpotify.classList.remove('active-playing');
-      }
-    }
-  }
-
-  // Mostrar el botón de interacción si el navegador bloquea el autoplay al terminar una canción
-  function showAutoplayBanner(trackTitle) {
-    if (spotifyAutoplayBanner) {
-      if (btnContinueNext) {
-        btnContinueNext.innerHTML = `<span class="play-triangle">▶</span> Continuar con la siguiente: <strong>${escapeHTML(trackTitle)}</strong>`;
-      }
-      spotifyAutoplayBanner.classList.remove('hidden');
-    }
-  }
-
-  // Ocultar el banner de autoplay cuando ya se está reproduciendo o se cambia manualmente
-  function hideAutoplayBanner() {
-    if (autoplayPromptTimer) {
-      clearTimeout(autoplayPromptTimer);
-      autoplayPromptTimer = null;
-    }
-    if (spotifyAutoplayBanner) {
-      spotifyAutoplayBanner.classList.add('hidden');
-    }
-  }
-
-  // Cargar una pista dinámicamente en el único controlador oficial de Spotify
-  function loadSpotifyTrack(index, autoPlay = false, isAutoAdvance = false) {
-    if (!playlist || playlist.length === 0) return;
-    if (index < 0) index = playlist.length - 1;
-    if (index >= playlist.length) index = 0;
-
-    currentTrackIndex = index;
-    trackFinishedHandled = false;
-    const track = playlist[currentTrackIndex];
-
-    updateTrackUI(currentTrackIndex);
-
-    if (embedController) {
-      // Usar URI oficial de Spotify
-      const spotifyUri = `spotify:track:${track.id}`;
-      embedController.loadEntity(spotifyUri);
-
-      if (autoPlay) {
-        // Intentar reproducción a través de la API oficial
-        try {
-          embedController.play();
-        } catch (err) {
-          console.warn('Spotify play() warning:', err);
-        }
-      }
-
-      if (isAutoAdvance) {
-        // Políticas de autoplay del navegador:
-        // Si el navegador bloquea el autoplay sin interacción directa del usuario,
-        // esperamos 1.6s. Si no arrancó la reproducción activa, mostramos el botón claro de continuar.
-        if (autoplayPromptTimer) clearTimeout(autoplayPromptTimer);
-        autoplayPromptTimer = setTimeout(() => {
-          if (!isPlaybackActive) {
-            showAutoplayBanner(track.titulo);
-          }
-        }, 1600);
-      } else {
-        hideAutoplayBanner();
-      }
-    }
-  }
-
-  // Cuando se detecta que la canción actual terminó
-  function onTrackEnded() {
-    const nextIndex = (currentTrackIndex + 1) % playlist.length;
-    loadSpotifyTrack(nextIndex, true, true);
-  }
-
-  // Configuración de los eventos oficiales del Spotify iFrame API
-  function setupSpotifyEvents(controller) {
-    // 1. Evento 'ready': El controlador está listo
-    controller.addListener('ready', () => {
-      updateTrackUI(currentTrackIndex);
-    });
-
-    // 2. Evento 'playback_started': Se inició la reproducción de una URI
-    controller.addListener('playback_started', (e) => {
-      const data = e.data || e;
-      if (data && data.uri) {
-        currentPlayingUri = data.uri;
-      }
-      updatePlayPauseUI(true);
-      hideAutoplayBanner();
-    });
-
-    // 3. Evento 'playback_update': Estado en tiempo real (position, duration, isPaused, isBuffering)
-    controller.addListener('playback_update', (e) => {
-      const data = e.data || e;
-      if (!data) return;
-
-      const { position, duration, isPaused } = data;
-
-      if (typeof isPaused === 'boolean') {
-        updatePlayPauseUI(!isPaused);
-        if (!isPaused) {
-          hideAutoplayBanner();
-        }
-      }
-
-      // Detección precisa de fin de canción oficial:
-      // duration y position están en milisegundos en Spotify Embeds.
-      // Evitamos falsos positivos en los primeros 2.5 segundos.
-      if (!trackFinishedHandled && duration > 0 && position > 2500) {
-        const remainingMs = duration - position;
-        const reachedEnd = (remainingMs <= 1200 && isPaused) || (position >= duration - 400);
-
-        if (reachedEnd) {
-          trackFinishedHandled = true;
-          onTrackEnded();
-        }
-      }
-    });
-
-    // 4. Evento 'error'
-    controller.addListener('error', (e) => {
-      console.warn('Spotify EmbedController error:', e);
-    });
-  }
-
-  // Inicializar el controlador oficial cuando la API esté lista
-  function initializeSpotifyController(IFrameAPI) {
-    const targetElement = document.getElementById('spotify-embed-target');
-    if (!targetElement) return;
-
-    const initialTrack = playlist[0];
-    const options = {
-      uri: `spotify:track:${initialTrack.id}`,
-      width: '100%',
-      height: '152'
-    };
-
-    IFrameAPI.createController(targetElement, options, (controller) => {
-      embedController = controller;
-      setupSpotifyEvents(controller);
-    });
-  }
-
-  // Conectar con el callback global oficial de Spotify
-  window.onSpotifyIframeApiReady = (IFrameAPI) => {
-    initializeSpotifyController(IFrameAPI);
-  };
-
-  // Fallback de seguridad: si la API ya cargó antes o tras timeout
-  setTimeout(() => {
-    if (!embedController && window.SpotifyIframeApi) {
-      initializeSpotifyController(window.SpotifyIframeApi);
-    } else if (!embedController) {
-      // Respaldo de iframe estándar si la red externa tarda
-      const container = document.getElementById('spotify-embed-container');
-      const target = document.getElementById('spotify-embed-target');
-      if (container && target) {
-        target.innerHTML = `
-          <iframe 
-            id="spotify-embed-fallback-frame"
-            src="https://open.spotify.com/embed/track/${playlist[0].id}?utm_source=generator&theme=0" 
-            width="100%" 
-            height="152" 
-            frameBorder="0" 
-            allowfullscreen="" 
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-            loading="lazy"
-            title="Spotify Embed">
-          </iframe>
-        `;
-      }
-    }
-  }, 4000);
-
-  // ==========================================
-  // EVENT LISTENERS DE CONTROLES
-  // ==========================================
-
-  // Botón "Anterior"
-  if (btnPrevTrack) {
-    btnPrevTrack.addEventListener('click', () => {
-      hideAutoplayBanner();
-      loadSpotifyTrack(currentTrackIndex - 1, true, false);
-    });
-  }
-
-  // Botón "Siguiente"
-  if (btnNextTrack) {
-    btnNextTrack.addEventListener('click', () => {
-      hideAutoplayBanner();
-      loadSpotifyTrack(currentTrackIndex + 1, true, false);
-    });
-  }
-
-  // Botón "Play / Pause"
-  if (btnPlayPauseSpotify) {
-    btnPlayPauseSpotify.addEventListener('click', () => {
-      hideAutoplayBanner();
-      if (embedController) {
-        embedController.togglePlay();
-      }
-    });
-  }
-
-  // Botón "Continuar con la siguiente" (cuando autoplay fue bloqueado por política del navegador)
-  if (btnContinueNext) {
-    btnContinueNext.addEventListener('click', () => {
-      hideAutoplayBanner();
-      if (embedController) {
-        embedController.play();
-      }
-    });
-  }
-
-  // Desplegable de playlist (drawer)
-  if (btnPlaylistToggle && playlistMenu) {
-    btnPlaylistToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      playlistMenu.classList.toggle('hidden');
-    });
-  }
-
-  if (btnClosePlaylist && playlistMenu) {
-    btnClosePlaylist.addEventListener('click', () => {
-      playlistMenu.classList.add('hidden');
-    });
-  }
-
-  // Cerrar cajón de canciones al hacer clic fuera
-  document.addEventListener('click', (e) => {
-    if (playlistMenu && !playlistMenu.contains(e.target) && e.target !== btnPlaylistToggle && !btnPlaylistToggle?.contains(e.target)) {
-      playlistMenu.classList.add('hidden');
-    }
-  });
-
-  // Minimizar / Reabrir reproductor flotante
-  if (btnToggleCollapse && miniPlayer && btnOpenPlayer) {
-    btnToggleCollapse.addEventListener('click', () => {
-      miniPlayer.classList.add('minimized');
-      btnOpenPlayer.classList.remove('hidden');
-      if (playlistMenu) playlistMenu.classList.add('hidden');
-      hideAutoplayBanner();
-    });
-  }
-
-  if (btnOpenPlayer && miniPlayer) {
-    btnOpenPlayer.addEventListener('click', () => {
-      miniPlayer.classList.remove('minimized');
-      btnOpenPlayer.classList.add('hidden');
-    });
-  }
-
-  // Inicializar UI visual y cajón de canciones
-  updateTrackUI(0);
-
-});
+    // Hacer crecer progresivamente el botón Sí
+    if (btnYes
