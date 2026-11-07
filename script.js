@@ -274,7 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function calculateTimeDiff(targetDateStr) {
     const targetDate = new Date(targetDateStr);
-    // Usamos la fecha fija de detención (no avanza más):
     const now = new Date(CONFIG.fechaDetencion);
     const diff = Math.max(0, now - targetDate);
 
@@ -557,4 +556,45 @@ document.addEventListener('DOMContentLoaded', () => {
     btnNo.textContent = CONFIG.frasesNo[phraseIndex];
 
     // Hacer crecer progresivamente el botón Sí
-    if (btnYes
+    if (btnYes) {
+      const currentScale = 1 + (noAttempts * 0.15);
+      btnYes.style.transform = `scale(${Math.min(currentScale, 2.5)})`;
+    }
+
+    // Mover el botón No a una posición aleatoria dentro del contenedor
+    const arenaRect = proposalArena.getBoundingClientRect();
+    const btnRect = btnNo.getBoundingClientRect();
+
+    const maxX = Math.max(0, arenaRect.width - btnRect.width - 20);
+    const maxY = Math.max(0, arenaRect.height - btnRect.height - 20);
+
+    const randomX = Math.max(10, Math.floor(Math.random() * maxX));
+    const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+
+    btnNo.style.position = 'absolute';
+    btnNo.style.left = `${randomX}px`;
+    btnNo.style.top = `${randomY}px`;
+  }
+
+  if (btnNo) {
+    btnNo.addEventListener('mouseover', moveNoButton);
+    btnNo.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      moveNoButton();
+    });
+  }
+
+  if (btnYes && modalSuccess) {
+    btnYes.addEventListener('click', () => {
+      playCelebrationFanfare();
+      modalSuccess.classList.remove('hidden');
+    });
+  }
+
+  if (btnCloseProposalModal && modalSuccess) {
+    btnCloseProposalModal.addEventListener('click', () => {
+      modalSuccess.classList.add('hidden');
+    });
+  }
+
+});
