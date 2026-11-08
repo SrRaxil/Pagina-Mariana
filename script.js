@@ -14,7 +14,7 @@ const CONFIG = {
   fechaReintento: '2026-03-06T16:00:00',
 
   // 🛑 FECHA EXACTA DE DETENCIÓN (Congelado justo ahora)
-  fechaDetencion: '2026-11-07T13:49:50',
+  fechaDetencion: '2026-11-03T16:45:00',
 
   // 3. PLAYLIST DE SPOTIFY (9 canciones oficiales seleccionadas)
   playlist: [
